@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.h": "c",
+        "limits": "c",
+        "*.tcc": "c",
+        "type_traits": "c",
+        "typeinfo": "c",
+        "cstdio": "cpp",
+        "bitset": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "future": "cpp",
+        "optional": "cpp"
+    }
+}
