@@ -219,25 +219,14 @@ void renderTower(GameDatas *in)
 {
     for (int i = 0; i < in->player.numberOfTowers; i++)
     {
-        DrawTexturePro(in->texture[100], Rectangle{0, 0, 64, 64}, Rectangle{in->player.tower[i].pos.x - 32, in->player.tower[i].pos.y - 32, 64, 64}, Vector2{0, 0}, 0, WHITE);
-        if (in->player.tower[i].shootCooldown == 3)
-            DrawTexturePro(in->texture[111 + in->player.tower[i].type], Rectangle{0, 0, 64, 80}, Rectangle{in->player.tower[i].pos.x, in->player.tower[i].pos.y, 64, 80}, Vector2{32, 49}, in->player.tower[i].rot, WHITE);
-        else
-            DrawTexturePro(in->texture[101 + in->player.tower[i].type], Rectangle{0, 0, 64, 64}, Rectangle{in->player.tower[i].pos.x, in->player.tower[i].pos.y, 64, 64}, Vector2{32, 32}, in->player.tower[i].rot, WHITE);
-
+        Color color = WHITE;
         Rectangle rec = {in->player.tower[i].pos.x - 32, in->player.tower[i].pos.y - 32, 64, 64};
         Rectangle upgradeRec = {20, 20, 250, 50};
         Rectangle upgradeDamageRec = {1800, 510 - 100, 100, 25};
         Rectangle upgradeRadiusRec = {1800, 590 - 100, 100, 25};
-        if (CheckCollisionPointRec(in->mousePoint, rec))
-        {
-            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->overlayId == i)
-                in->overlayId = -1;
-            else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
-                in->overlayId = i;
-        }
         if (in->overlayId == i)
         {
+            color = YELLOW;
             DrawCircle(in->player.tower[i].pos.x, in->player.tower[i].pos.y, in->player.tower[i].radius, CLITERAL(Color){150, 0, 0, 50});
             if (in->player.tower[i].type == BASIC)
             {
@@ -301,6 +290,19 @@ void renderTower(GameDatas *in)
                     in->player.tower[i].radius += 20;
                 }
             }
+        }
+        DrawTexturePro(in->texture[100], Rectangle{0, 0, 64, 64}, Rectangle{in->player.tower[i].pos.x - 32, in->player.tower[i].pos.y - 32, 64, 64}, Vector2{0, 0}, 0, color);
+        if (in->player.tower[i].shootCooldown == 3)
+            DrawTexturePro(in->texture[111 + in->player.tower[i].type], Rectangle{0, 0, 64, 80}, Rectangle{in->player.tower[i].pos.x, in->player.tower[i].pos.y, 64, 80}, Vector2{32, 49}, in->player.tower[i].rot, color);
+        else
+            DrawTexturePro(in->texture[101 + in->player.tower[i].type], Rectangle{0, 0, 64, 64}, Rectangle{in->player.tower[i].pos.x, in->player.tower[i].pos.y, 64, 64}, Vector2{32, 32}, in->player.tower[i].rot, color);
+
+        if (CheckCollisionPointRec(in->mousePoint, rec))
+        {
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->overlayId == i)
+                in->overlayId = -1;
+            else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+                in->overlayId = i;
         }
     }
 }
