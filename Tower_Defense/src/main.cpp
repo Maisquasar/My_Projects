@@ -64,6 +64,7 @@ int main(void)
                 in.btnState[2] = false;
                 in.enemiesCount = 0;
                 in.type = MAIN;
+                in.inGame = false;
             }
             break;
         case SETTINGS:

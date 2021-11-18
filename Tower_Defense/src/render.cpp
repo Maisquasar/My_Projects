@@ -125,9 +125,12 @@ void renderGame(GameDatas *in)
                     int tmpy = (int)(in->towerRec[i].y / 64 + 0.5) * 64;
                     if (map1[tmpy / 64][tmpx / 64] == 'd' && in->drag[i] == false && in->isTower[tmpy / 64][tmpx / 64] == 0) //If grass
                     {
-                        in->player.coins -= i == 0 ? 100 : 500;
-                        in->isTower[tmpy / 64][tmpx / 64] = true;
-                        createTower(in, i, tmpx, tmpy);
+                        if ((in->towerRec[i].x < 1680 || in->towerRec[i].x > 1920) || (in->towerRec[i].y < 30 || in->towerRec[i].y > 300))
+                        {
+                            in->player.coins -= i == 0 ? 100 : 500;
+                            in->isTower[tmpy / 64][tmpx / 64] = true;
+                            createTower(in, i, tmpx, tmpy);
+                        }
                     }
                     if (i == 0)
                         in->towerRec[i] = {1810, 120, 64, 64};
