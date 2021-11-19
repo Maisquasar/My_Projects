@@ -96,6 +96,7 @@ void renderGame(GameDatas *in)
     generateMap(in);
     //Render
     renderEnemies(in);
+    renderParticles(in->particle);
     renderTower(in);
     //Tower Overlay
     Rectangle TowerButtonRec = {1850, 50, 80, 50}, TowerRec = {1750, 100, 280, 200};
@@ -112,11 +113,11 @@ void renderGame(GameDatas *in)
     if (in->btnState[9])
     {
         DrawRectanglePro(TowerRec, Vector2{0, 0}, 0, CLITERAL(Color){17, 85, 136, 150});
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 2; i++)
         {
             if (CheckCollisionPointRec(in->mousePoint, in->towerRec[i]))
             {
-                DrawTexturePro(in->texture[101 + i], Rectangle{0, 0, 64, 64}, in->towerRec[i], Vector2{0, 0}, 0, in->player.coins >= (i == 0 ? 100 : 500) ? YELLOW : RED);
+                DrawTexturePro(in->texture[101 + 2 * i], Rectangle{0, 0, 64, 64}, in->towerRec[i], Vector2{0, 0}, 0, in->player.coins >= (i == 0 ? 100 : 500) ? YELLOW : RED);
                 if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->player.coins >= (i == 0 ? 100 : 500))
                 {
                     in->drag[i] = !in->drag[i]; //Invert drag or not
@@ -134,13 +135,12 @@ void renderGame(GameDatas *in)
                     }
                     if (i == 0)
                         in->towerRec[i] = {1810, 120, 64, 64};
-
                     else
                         in->towerRec[i] = {1810, 220, 64, 64};
                 }
             }
             else
-                DrawTexturePro(in->texture[101 + i], Rectangle{0, 0, 64, 64}, in->towerRec[i], Vector2{0, 0}, 0, WHITE);
+                DrawTexturePro(in->texture[101 + 2 * i], Rectangle{0, 0, 64, 64}, in->towerRec[i], Vector2{0, 0}, 0, WHITE);
             if (in->drag[i])
             {
                 in->towerRec[i].x = in->mousePoint.x - 32;
@@ -208,8 +208,10 @@ void renderEnemies(GameDatas *in)
     {
         if (in->enemy[i].alive && !in->enemy[i].dead)
         {
-            if (in->enemy[i].type != STRONG)
+            if (in->enemy[i].type == SLOW || in->enemy[i].type == FAST)
                 DrawTexturePro(in->texture[50 + in->enemy[i].type], Rectangle{0, 0, 42, 46}, Rectangle{in->enemy[i].pos.x, in->enemy[i].pos.y, 32, 32}, Vector2{16, 16}, in->enemy[i].rot, WHITE);
+            else if (in->enemy[i].type == BOSS)
+                DrawTexturePro(in->texture[50 + in->enemy[i].type], Rectangle{0, 0, 62, 76}, Rectangle{in->enemy[i].pos.x, in->enemy[i].pos.y, 62, 76}, Vector2{31, 38}, in->enemy[i].rot + 180, WHITE);
             else
                 DrawTexturePro(in->texture[50 + in->enemy[i].type], Rectangle{0, 0, 52, 60}, Rectangle{in->enemy[i].pos.x, in->enemy[i].pos.y, 32, 32}, Vector2{16, 16}, in->enemy[i].rot + 180, WHITE);
             DrawRectangle(in->enemy[i].pos.x - 25, in->enemy[i].pos.y + 20, in->enemy[i].life * 50 / in->enemy[i].maxLife, 10, GREEN);
@@ -220,92 +222,126 @@ void renderEnemies(GameDatas *in)
 
 void renderTower(GameDatas *in)
 {
+    if (in->player.tower[0].rot == 0 && in->rounds > 1)
+        TraceLog(LOG_INFO, "Test");
     for (int i = 0; i < in->player.numberOfTowers; i++)
     {
-        Color color = WHITE;
-        Rectangle rec = {in->player.tower[i].pos.x - 32, in->player.tower[i].pos.y - 32, 64, 64};
+        //Init
+        Tower tmp = in->player.tower[i];
+        Color color[10] = {};
+        Rectangle rec = {tmp.pos.x - 32, tmp.pos.y - 32, 64, 64};
         Rectangle upgradeRec = {20, 20, 250, 50};
         Rectangle upgradeDamageRec = {1800, 510 - 100, 100, 25};
         Rectangle upgradeRadiusRec = {1800, 590 - 100, 100, 25};
+        color[0] = CLITERAL(Color){255, 255, 255, 255};
+        //Overlay
         if (in->overlayId == i)
         {
-            color = YELLOW;
-            DrawCircle(in->player.tower[i].pos.x, in->player.tower[i].pos.y, in->player.tower[i].radius, CLITERAL(Color){150, 0, 0, 50});
-            if (in->player.tower[i].type == BASIC)
+            DrawCircle(tmp.pos.x, tmp.pos.y, tmp.radius, CLITERAL(Color){150, 0, 0, 50}); //Radius Circle
+            //Upgrade Button
+            if (tmp.type == BASIC || tmp.type == ELITE)
             {
                 DrawRectangleLinesEx(upgradeRec, 1, BLACK);
-                DrawText("UPGRADE 450$", 25, 25, 30, BLACK);
-                if (CheckCollisionPointRec(in->mousePoint, upgradeRec))
+                DrawText(TextFormat("UPGRADE %d$", tmp.upgradeCost), 25, 25, 30, BLACK);
+                if (CheckCollisionPointRec(in->mousePoint, upgradeRec)) //Color if collision
                 {
-                    DrawRectangleRec(upgradeRec, in->player.coins > 450 ? CLITERAL(Color){150, 150, 0, 100} : CLITERAL(Color){255, 0, 0, 150});
-                    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && in->player.coins > 450)
-                    {
-                        upgradeTower(in, i);
-                    }
+                    if (tmp.type == ELITE ? in->player.coins > 700 : in->player.coins > 450)
+                        color[1] = CLITERAL(Color){150, 150, 0, 100};
+                    else
+                        color[1] = CLITERAL(Color){255, 0, 0, 150};
                 }
                 else
-                    DrawRectangleRec(upgradeRec, CLITERAL(Color){150, 0, 0, 100});
-                if (IsKeyDown(KEY_U) && in->player.coins > 450)
+                    color[1] = CLITERAL(Color){150, 0, 0, 100};
+                DrawRectangleRec(upgradeRec, color[1]);
+                //Key for Upgrade
+                if ((IsKeyDown(KEY_U) || (CheckCollisionPointRec(in->mousePoint, upgradeRec) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))&& (tmp.type == ELITE ? in->player.coins > 700 : in->player.coins > 450))
                 {
-                    upgradeTower(in, i);
+                    tmp = upgradeTower(in, tmp);
                 }
             }
             else
             {
                 //Upgrade Damage button
-                DrawText(TextFormat("Damage : %d", in->player.tower[i].damage), 1700, 470 - 100, 30, BLACK);
+                DrawText(TextFormat("Damage : %d", tmp.damage), 1700, 470 - 100, 30, BLACK);
                 DrawRectangleLinesEx(upgradeDamageRec, 1, BLACK);
                 DrawText("UPGRADE 100$", 1810, 515 - 100, 5, BLACK);
                 if (CheckCollisionPointRec(in->mousePoint, upgradeDamageRec))
                 {
                     DrawRectangleRec(upgradeDamageRec, in->player.coins > 200 ? CLITERAL(Color){150, 150, 0, 100} : CLITERAL(Color){255, 0, 0, 150});
-                    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->player.coins > 200 && in->player.tower[i].damage < 50)
-                    {
-                        in->player.coins -= 100;
-                        in->player.tower[i].damage += 2;
-                    }
                 }
                 else
                     DrawRectangleRec(upgradeDamageRec, CLITERAL(Color){150, 0, 0, 100});
-                if (IsKeyReleased(KEY_D) && in->player.coins > 100 && in->player.tower[i].damage < 50)
+                if ((IsKeyReleased(KEY_D) || (CheckCollisionPointRec(in->mousePoint, upgradeDamageRec) && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))) && in->player.coins > 100 && tmp.damage < 50)
                 {
                     in->player.coins -= 100;
-                    in->player.tower[i].damage += 2;
+                    tmp.damage += 2;
                 }
+
                 //Upgrade Radius button
-                DrawText(TextFormat("Radius : %d", in->player.tower[i].radius), 1700, 550 - 100, 30, BLACK);
+                DrawText(TextFormat("Radius : %d", tmp.radius), 1700, 550 - 100, 30, BLACK);
                 DrawRectangleLinesEx(upgradeRadiusRec, 1, BLACK);
                 DrawText("UPGRADE 100$", 1810, 595 - 100, 5, BLACK);
                 if (CheckCollisionPointRec(in->mousePoint, upgradeRadiusRec))
                 {
                     DrawRectangleRec(upgradeRadiusRec, in->player.coins > 200 ? CLITERAL(Color){150, 150, 0, 100} : CLITERAL(Color){255, 0, 0, 150});
-                    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->player.coins > 200 && in->player.tower[i].radius < 300)
+                    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->player.coins > 200 && tmp.radius < 300)
                     {
                         in->player.coins -= 100;
-                        in->player.tower[i].radius += 20;
+                        tmp.radius += 20;
                     }
                 }
-                else
-                    DrawRectangleRec(upgradeRadiusRec, CLITERAL(Color){150, 0, 0, 100});
-                if (IsKeyReleased(KEY_R) && in->player.coins > 100 && in->player.tower[i].radius < 300)
+                DrawRectangleRec(upgradeRadiusRec, CLITERAL(Color){150, 0, 0, 100});
+                if (IsKeyReleased(KEY_R) && in->player.coins > 100 && tmp.radius < 300)
                 {
                     in->player.coins -= 100;
-                    in->player.tower[i].radius += 20;
+                    tmp.radius += 20;
                 }
             }
         }
-        DrawTexturePro(in->texture[100], Rectangle{0, 0, 64, 64}, Rectangle{in->player.tower[i].pos.x - 32, in->player.tower[i].pos.y - 32, 64, 64}, Vector2{0, 0}, 0, color);
-        if (in->player.tower[i].shootCooldown == 3)
-            DrawTexturePro(in->texture[111 + in->player.tower[i].type], Rectangle{0, 0, 64, 80}, Rectangle{in->player.tower[i].pos.x, in->player.tower[i].pos.y, 64, 80}, Vector2{32, 49}, in->player.tower[i].rot, color);
-        else
-            DrawTexturePro(in->texture[101 + in->player.tower[i].type], Rectangle{0, 0, 64, 64}, Rectangle{in->player.tower[i].pos.x, in->player.tower[i].pos.y, 64, 64}, Vector2{32, 32}, in->player.tower[i].rot, color);
-
-        if (CheckCollisionPointRec(in->mousePoint, rec))
+        //Select
+        if (CheckCollisionPointRec(in->mousePoint, rec)) //Check collision with tower
         {
-            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->overlayId == i)
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && in->overlayId == i) //Re-init Overlay id
                 in->overlayId = -1;
-            else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+            else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) //Overlay id
+            {
                 in->overlayId = i;
+            }
+        }
+        if (in->overlayId == i)
+        {
+            color[0] = YELLOW;
+        }
+        //Render Tower
+        float height = 64;
+        int textureID = 101;
+        if (tmp.shootCooldown >= 15)
+        {
+            height = (tmp.type == BASIC || tmp.type == ADVANCED) ? 80 : 64;
+            textureID = 111;
+        }
+        DrawTexturePro(in->texture[100], Rectangle{0, 0, 64, 64}, Rectangle{tmp.pos.x - 32, tmp.pos.y - 32, 64, 64}, Vector2{0, 0}, 0, color[0]); //Tower Base
+        DrawTexturePro(in->texture[textureID + tmp.type], Rectangle{0, 0, 64, height}, Rectangle{tmp.pos.x, tmp.pos.y, 64, height}, Vector2{32, height == 80 ? 49.0f : 32.0f}, tmp.rot, color[0]);//Tower Up
+        in->player.tower[i] = tmp;
+    }
+}
+
+void renderParticles(Particle *in) //Particles renderoui
+{
+    for (int i = 0; i < 1000; i++)
+    {
+        if (in[i].type != NONE)
+        {
+            Particle *tmp = &in[i];
+            switch (tmp->type)
+            {
+            case EXPLOSION:
+                if (tmp->timer <= 5)
+                    DrawCircle(tmp->pos.x, tmp->pos.y, tmp->radius, CLITERAL(Color){97, 106, 107, (unsigned char)tmp->opacity});
+                break;
+            default:
+                break;
+            }
         }
     }
 }

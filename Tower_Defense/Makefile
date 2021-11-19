@@ -1,7 +1,7 @@
 PROGRAM=tower
 
 # Add your objs to generate in OBJS var
-OBJS=src/main.o src/render.o src/textureloader.o src/map.o src/action.o src/mathHelper.o src/rounds.o
+OBJS=src/main.o src/render.o src/textureloader.o src/map.o src/action.o src/mathHelper.o src/rounds.o src/particle.o
 
 CXX?=g++
 TARGET?=$(shell $(CXX) -dumpmachine)

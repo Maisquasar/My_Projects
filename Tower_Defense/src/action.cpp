@@ -28,74 +28,79 @@ void handleEnemies(GameDatas *in)
 
             if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '=')
             {
-                in->enemy[i].tmpdir = 0;
-                in->enemy[i].rot = -90;
+                in->enemy[i].tmpdir = 0;//NORTH
+                in->enemy[i].rot = -90;//EAST
                 in->enemy[i].pos.x += in->enemy[i].speed;
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == ']')
             {
-                in->enemy[i].rot = 180;
+                in->enemy[i].rot = 180;//SOUTH
                 in->enemy[i].pos.x += in->enemy[i].speed;
                 in->enemy[i].pos.y -= in->enemy[i].speed;
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '[')
             {
-                in->enemy[i].rot = -90;
+                in->enemy[i].rot = -90;//EAST
                 in->enemy[i].pos.y += in->enemy[i].speed;
                 in->enemy[i].pos.x += in->enemy[i].speed;
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '|')
             {
-                in->enemy[i].tmpdir = 180;
-                if (in->enemy[i].rot == 0)
+                in->enemy[i].tmpdir = 180;//SOUTH
+                if (in->enemy[i].rot == 0)//NORTH
                     in->enemy[i].pos.y += in->enemy[i].speed;
-                else
+                else//SOUTH
                     in->enemy[i].pos.y -= in->enemy[i].speed;
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '{')
             {
-                in->enemy[i].rot = -90;
+                in->enemy[i].rot = -90;//EAST
                 in->enemy[i].pos.x += in->enemy[i].speed;
                 in->enemy[i].pos.y -= in->enemy[i].speed;
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '}')
             {
-                in->enemy[i].rot = 0;
+                in->enemy[i].rot = 0;//NORTH
                 in->enemy[i].pos.x += in->enemy[i].speed;
                 in->enemy[i].pos.y += in->enemy[i].speed;
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '>')
             {
-                if (in->enemy[i].tmpdir == 180)
+                if (in->enemy[i].tmpdir == 180)//SOUTH
                     in->enemy[i].tmpdir = GetRandomValue(1, 2);
                 if (in->enemy[i].tmpdir == 1)
                 {
-                    in->enemy[i].rot = -90;
+                    in->enemy[i].rot = -90;//EAST
                     in->enemy[i].pos.x += in->enemy[i].speed;
                     in->enemy[i].pos.y += in->enemy[i].speed;
                 }
                 else
                 {
-                    if (in->enemy[i].rot == 0)
+                    if (in->enemy[i].rot == 0)//NORTH
                         in->enemy[i].pos.y += in->enemy[i].speed;
-                    else
+                    else//SOUTH
                         in->enemy[i].pos.y -= in->enemy[i].speed;
                 }
             }
             else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '<')
             {
-                if (in->enemy[i].tmpdir == 0)
+                if (in->enemy[i].tmpdir == 0)//NORTH
                     in->enemy[i].tmpdir = GetRandomValue(1, 2);
-                if (in->enemy[i].rot == -90 || in->enemy[i].rot == 360)
+                if (in->enemy[i].rot == -90 || in->enemy[i].rot == 360 + 180)//EAST || NORTH
                 {
-                    in->enemy[i].rot = 360;
+                    in->enemy[i].rot = 360+180;
                     in->enemy[i].pos.x += in->enemy[i].speed;
                     in->enemy[i].pos.y -= in->enemy[i].speed;
                 }
-                if (in->enemy[i].rot == 180)
+                if (in->enemy[i].rot == 180)//SOUTH
                 {
                     in->enemy[i].pos.y -= in->enemy[i].speed;
                 }
+            }
+            else
+            {
+                int *tmp;
+                int test = *tmp;
             }
             if (in->enemy[i].life == 0)
                 in->enemy[i].alive = false;
@@ -106,8 +111,9 @@ void handleEnemies(GameDatas *in)
             if (in->enemy[i].spawnCooldoown == 0)
                 in->enemy[i].alive = true;
         }
-        if (in->enemy[i].life <= 0)
+        if (in->enemy[i].life <= 0 && in->enemy[i].dead == false)
         {
+            in->player.coins += in->enemy[i].coinsToDeliver;
             in->enemy[i].alive = false;
             in->enemy[i].dead = true;
         }
@@ -160,20 +166,22 @@ int getNearestEnemieIndex(GameDatas *in, Vec2D targetPos) //Detect the NearestPl
     return index;
 }
 
-Vector2 VtoV2(Vec2D vec)
+Vec2D getFurtherEnemies(GameDatas *in, Vec2D targetPos)
 {
-    Vector2 v;
-    v.x = vec.x;
-    v.y = vec.y;
-    return v;
-}
-
-Vec2D V2toV(Vector2 vec)
-{
-    Vec2D v;
-    v.x = vec.x;
-    v.y = vec.y;
-    return v;
+    Vec2D tmp2 = createWith(0, 0);
+    for (int i = 0; i < in->enemiesCount; ++i)
+    {
+        if (in->enemy[i].spawnCooldoown <= 0 && !in->enemy[i].dead)
+        {
+            Vec2D tmp = sub(V2toV(in->enemy[i].pos), targetPos);
+            int temp = getLength(tmp);
+            if (tmp2.x == 0 || getLength(tmp2) < temp)
+            {
+                tmp2 = tmp;
+            }
+        }
+    }
+    return tmp2;
 }
 
 void handleTowers(GameDatas *in)
@@ -182,42 +190,97 @@ void handleTowers(GameDatas *in)
     {
         for (int i = 0; i < in->player.numberOfTowers; i++)
         {
-            Vec2D pPos = getNearestEnemies(in, V2toV(in->player.tower[i].pos));
-            if (getLength(pPos) <= in->player.tower[i].radius)
+            if (in->player.tower[i].type == BASIC || in->player.tower[i].type == ADVANCED)
             {
-                float dir;
-                if (pPos.x == 0)
+                Vec2D pPos = getNearestEnemies(in, V2toV(in->player.tower[i].pos));
+                if (getLength(pPos) <= in->player.tower[i].radius)
                 {
-                    if (pPos.y > 0)
-                        dir = 90;
+                    float dir;
+                    if (pPos.x == 0)
+                    {
+                        if (pPos.y > 0)
+                            dir = 90;
+                        else
+                            dir = -90;
+                    }
                     else
-                        dir = -90;
+                    {
+                        dir = (atanf(pPos.y / pPos.x) / PI * 180);
+                        if (pPos.x < 0)
+                            dir += 180;
+                    }
+                    in->player.tower[i].rot = dir + 90;
+                    if (in->player.tower[i].shootCooldown == 0)
+                    {
+                        in->player.tower[i].shootCooldown = in->player.tower[i].type == BASIC ? 30 : 15;
+                        in->enemy[getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos))].life -= in->player.tower[i].damage;
+                    }
+                    else
+                        in->player.tower[i].shootCooldown -= 1;
                 }
                 else
+                    in->player.tower[i].shootCooldown = 0;
+            }
+            else
+            {
+                Vec2D pPos = getNearestEnemies(in, V2toV(in->player.tower[i].pos));
+                if (getLength(pPos) <= in->player.tower[i].radius)
                 {
-                    dir = (atanf(pPos.y / pPos.x) / PI * 180);
-                    if (pPos.x < 0)
-                        dir += 180;
-                }
-                in->player.tower[i].rot = dir + 90;
-                if (in->player.tower[i].shootCooldown == 0)
-                {
-                    in->player.tower[i].shootCooldown = in->player.tower[i].type == BASIC ? 30 : 15;
-                    in->enemy[getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos))].life -= in->player.tower[i].damage;
-                    if (in->enemy[getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos))].life <= 0)
-                        in->player.coins += in->enemy[getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos))].coinsToDeliver;
+                    if (in->player.tower[i].shootCooldown <= 15)
+                    {
+                        float dir;
+                        if (pPos.x == 0)
+                        {
+                            if (pPos.y > 0)
+                                dir = 90;
+                            else
+                                dir = -90;
+                        }
+                        else
+                        {
+                            dir = (atanf(pPos.y / pPos.x) / PI * 180);
+                            if (pPos.x < 0)
+                                dir += 180;
+                        }
+                        in->player.tower[i].rot = dir + 90;
+                    }
+                    if (in->player.tower[i].shootCooldown == 0)
+                    {
+                        in->player.tower[i].shootCooldown = 180;
+                        shootRocket(in, in->player.tower[i], V2toV(in->enemy[getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos))].pos), getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos)));
+                        if (in->player.tower[i].type == ULTIMATE)
+                            shootRocket(in, in->player.tower[i], V2toV(in->enemy[getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos))].pos), getNearestEnemieIndex(in, V2toV(in->player.tower[i].pos)));
+                    }
+                    else
+                        in->player.tower[i].shootCooldown -= 1;
                 }
                 else
                     in->player.tower[i].shootCooldown -= 1;
             }
-            else
+            if (in->player.tower[i].shootCooldown <= 0)
                 in->player.tower[i].shootCooldown = 0;
         }
     }
 }
 
+void shootRocket(GameDatas *in, Tower t, Vec2D PPos, int index)
+{
+    createExplosion(in, VtoV2(PPos));
+    for (int i = 0; i < in->enemiesCount; i++)
+    {
+        // float distance = getDistance(PPos, V2toV(in->enemy[i].pos));
+        float ePos = getDistance(V2toV(in->enemy[i].pos), PPos);
+        if (ePos <= EXPLOSION_RADIUS)
+        {
+            int damage = t.damage - (ePos / (EXPLOSION_RADIUS / 2));
+            in->enemy[i].life -= damage;
+        }
+    }
+}
 void createTower(GameDatas *in, int type, int x, int y)
 {
+    if (type == 1)
+        type = ELITE;
     in->player.numberOfTowers += 1;
     Tower tmp;
     tmp.index = in->player.numberOfTowers - 1;
@@ -233,27 +296,39 @@ void createTower(GameDatas *in, int type, int x, int y)
         tmp.radius = 150;
         tmp.damage = 10;
         tmp.shootCooldown = 30;
+        tmp.upgradeCost = 450;
         break;
-    case ADVANCED:
+    case ELITE:
         tmp.radius = 200;
-        tmp.damage = 10;
-        tmp.shootCooldown = 15;
-        break;
+        tmp.damage = 20;
+        tmp.shootCooldown = 0;
+        tmp.price = 500;
+        tmp.upgradeCost = 700;
     default:
         break;
     }
     in->player.tower[tmp.index] = tmp;
 }
 
-void upgradeTower(GameDatas *in, int index)
+Tower upgradeTower(GameDatas *in, Tower tmp)
 {
-    in->player.coins -= 450;
-    Tower tmp = in->player.tower[index];
-    tmp.radius = 200;
-    tmp.damage = 10;
-    tmp.shootCooldown = 15;
-    tmp.type = ADVANCED;
-    in->player.tower[index] = tmp;
+    if (tmp.type == BASIC)
+    {
+        in->player.coins -= 450;
+        tmp.radius = 200;
+        tmp.damage = 10;
+        tmp.shootCooldown = 0;
+        tmp.type = ADVANCED;
+    }
+    else if (tmp.type == ELITE)
+    {
+        in->player.coins -= 700;
+        tmp.radius = 250;
+        tmp.damage = 20;
+        tmp.shootCooldown = 0;
+        tmp.type = ULTIMATE;
+    }
+    return tmp;
 }
 
 void initTower(GameDatas *in)

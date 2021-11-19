@@ -25,9 +25,10 @@ void getRounds(GameDatas *in)
         in->precEnemiesCount = in->enemiesCount;
         break;
     default:
-        createEnemies(in, in->precEnemiesCount * 1/8, STRONG);
+        createEnemies(in, in->precEnemiesCount * 1 / 8, STRONG);
         createEnemies(in, in->precEnemiesCount, FAST);
         createEnemies(in, in->precEnemiesCount, SLOW);
+        createEnemies(in, in->precEnemiesCount * 1 / 32, BOSS);
         in->precEnemiesCount = in->enemiesCount;
         break;
     }
@@ -66,8 +67,9 @@ void createEnemies(GameDatas *in, int Number, EnemyType type)
             break;
         case BOSS:
             in->enemy[i].speed = 0.5;
-            in->enemy[i].life = 1000;
+            in->enemy[i].life = 3000;
             in->enemy[i].coinsToDeliver = 500 - (in->rounds - 1 * 20);
+            in->delaySpawn += 500;
             break;
         default:
             break;

@@ -2,6 +2,7 @@
 #include "render.hpp"
 #include "textureloader.hpp"
 #include "action.hpp"
+#include "particle.hpp"
 
 int main(void)
 {
@@ -47,6 +48,7 @@ int main(void)
         case GAME:
             handleEnemies(&in);
             handleTowers(&in);
+            handleParticles(in.particle);
             if (IsKeyPressed(KEY_TAB)) SetTargetFPS(600);
             if (IsKeyReleased(KEY_TAB)) SetTargetFPS(60);
             if (in.btnState[0])

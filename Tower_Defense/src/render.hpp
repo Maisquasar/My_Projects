@@ -10,4 +10,5 @@ void renderGame(GameDatas*);
 void renderPause(GameDatas*);
 void generateMap(GameDatas*);
 void renderTower(GameDatas*);
+void renderParticles(Particle *);
 void renderEnemies(GameDatas*);

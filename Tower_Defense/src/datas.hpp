@@ -2,13 +2,16 @@
 #include <raylib.h>
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
+#define UPGRADE_COST_BASIC 450
+#define UPGRADE_COST_ELITE 450
+#define EXPLOSION_RADIUS 100
 
 typedef enum renderType : int
 {
     MAIN,
     GAME,
     SETTINGS,
-}renderType;
+} renderType;
 
 enum TowerType : int
 {
@@ -36,6 +39,7 @@ struct Tower
     int price;
     int index;
     int damage;
+    int upgradeCost;
     bool overlay;
 };
 
@@ -84,6 +88,22 @@ struct Enemy
     int spawnCooldoown;
 };
 
+enum ParticleType : int
+{
+    NONE,
+    EXPLOSION
+};
+
+struct Particle
+{
+    Vector2 pos;
+    Vector2 vel;
+    int timer;
+    ParticleType type;
+    float radius;
+    int opacity;
+};
+
 struct GameDatas
 {
     Font font[5];
@@ -93,6 +113,7 @@ struct GameDatas
     renderType type;
     Vector2 mousePoint;
     Rectangle towerRec[10];
+    Particle particle[1000];
     int delaySpawn;
     int overlayId;
     bool btnState[10];

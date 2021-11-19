@@ -27,11 +27,15 @@ void TexturesLoad(GameDatas* in)
     in->texture[100] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile180.png");
     in->texture[101] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile249.png");
     in->texture[102] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile250.png");
+    in->texture[103] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile206.png");
+    in->texture[104] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile205.png");
 
     //Shoots
     in->texture[110] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile298.png");
     in->texture[111] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/Tower1Fire.png");
     in->texture[112] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/Tower2Fire.png");
+    in->texture[113] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile229.png");
+    in->texture[114] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile228.png");
 
     in->texture[25] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/tower-defense-top-down/PNG/Default size/towerDefense_tile287.png");
 }

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <raylib.h>
 
 #include <math.h>
 
@@ -75,4 +75,11 @@ RotationMatrix getRotationMatrix(float angle);
 
 Vec2D applyRotation(Vec2D in, RotationMatrix matrix);
 
+float getDistance(Vec2D in, Vec2D out);
+
 int atoi(char* number);
+
+Vector2 VtoV2(Vec2D vec);
+
+
+Vec2D V2toV(Vector2 vec);

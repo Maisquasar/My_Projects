@@ -114,6 +114,11 @@ Vec2D applyRotation(Vec2D in, RotationMatrix matrix) {
     return createWith(res[0], res[1]);
 }
 
+float getDistance(Vec2D in, Vec2D out)
+{
+   return sqrtf((in.x - out.x) * (in.x - out.x) + (in.y - out.y) * (in.y - out.y));
+}
+
 int atoi(char* number) {
     int res = 0;
     for (int i = 0; number[i] != 0; i++) {
@@ -121,4 +126,20 @@ int atoi(char* number) {
         res += number[i]-'0';
     }
     return res;
+}
+
+Vector2 VtoV2(Vec2D vec)
+{
+    Vector2 v;
+    v.x = vec.x;
+    v.y = vec.y;
+    return v;
+}
+
+Vec2D V2toV(Vector2 vec)
+{
+    Vec2D v;
+    v.x = vec.x;
+    v.y = vec.y;
+    return v;
 }
