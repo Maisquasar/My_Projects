@@ -67,7 +67,7 @@ void createEnemies(GameDatas *in, int Number, EnemyType type)
             break;
         case BOSS:
             in->enemy[i].speed = 0.5;
-            in->enemy[i].life = 3000;
+            in->enemy[i].life = 3000 + ((in->rounds - 1) * 50);
             in->enemy[i].coinsToDeliver = 500 - (in->rounds - 1 * 20);
             in->delaySpawn += 500;
             break;

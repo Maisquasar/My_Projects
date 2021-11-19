@@ -99,8 +99,8 @@ void handleEnemies(GameDatas *in)
             }
             else
             {
-                int *tmp;
-                int test = *tmp;
+                // int *tmp;
+                // int test = *tmp;
             }
             if (in->enemy[i].life == 0)
                 in->enemy[i].alive = false;
