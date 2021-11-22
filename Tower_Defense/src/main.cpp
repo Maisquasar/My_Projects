@@ -3,6 +3,8 @@
 #include "textureloader.hpp"
 #include "action.hpp"
 #include "particle.hpp"
+#include <iostream>
+#include <fstream>
 
 int main(void)
 {
@@ -15,13 +17,18 @@ int main(void)
     for (int j = 0; j < 17; j++)
         for (int i = 0; i < 31; i++)
             in.isTower[j][i] = 0;
-    
+
     in.type = MAIN;
     in.rounds = 1;
     in.enemiesCount = 0;
     in.overlayId = -1;
+    in.mapId = 0;
     bool exit = false;
     TexturesLoad(&in);
+    {
+        std::ifstream file("src/map.txt");
+        file.read((char *)&in.maps[0], sizeof(in.maps[0]));
+    }
     while (!exit && !WindowShouldClose())
     {
         in.mousePoint = GetMousePosition();
@@ -49,8 +56,10 @@ int main(void)
             handleEnemies(&in);
             handleTowers(&in);
             handleParticles(in.particle);
-            if (IsKeyPressed(KEY_TAB)) SetTargetFPS(600);
-            if (IsKeyReleased(KEY_TAB)) SetTargetFPS(60);
+            if (IsKeyPressed(KEY_TAB))
+                SetTargetFPS(600);
+            if (IsKeyReleased(KEY_TAB))
+                SetTargetFPS(60);
             if (in.btnState[0])
             {
                 in.btnState[10] = false;
@@ -70,7 +79,7 @@ int main(void)
             }
             break;
         case SETTINGS:
-            if (in.btnState[0])
+            if (in.btnState[2])
             {
                 if (in.inGame)
                 {
@@ -78,10 +87,21 @@ int main(void)
                     in.type = GAME;
                 }
                 else
+                {
                     in.type = MAIN;
-                in.btnState[0] = false;
+                    in.btnState[0] = false;
+                }
+            }
+            if (in.btnState[0])
+            {
+                in.type = CREATE;
+                reinitMap(&in);
             }
             break;
+        case CREATE:
+            if (in.btnState[7])
+                in.type = MAIN;
+            in.btnState[7] = false;
         default:
             break;
         }

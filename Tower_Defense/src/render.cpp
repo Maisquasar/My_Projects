@@ -14,6 +14,8 @@ void render(GameDatas *in)
     case SETTINGS:
         renderSettings(in);
         break;
+    case CREATE:
+        renderCreate(in);
     default:
         break;
     }
@@ -42,9 +44,6 @@ void renderMain(GameDatas *in)
     for (int i = 0; i < 3; i++)
     {
         ButtonsRec[i] = {(MainRec.x + MainRec.width) / 2, 250 + 250 * (float)i, 500, 200};
-    }
-    for (int i = 0; i < 3; i++)
-    {
         if (CheckCollisionPointRec(in->mousePoint, ButtonsRec[i]))
         {
             DrawRectanglePro(ButtonsRec[i], (Vector2){0, 0}, 0, CLITERAL(Color){200, 200, 200, 150});
@@ -76,18 +75,165 @@ void renderSettings(GameDatas *in)
     //Title
     DrawTextPro(in->font[0], "TOWER DEFENSE", (Vector2){MainRec.x + 100, MainRec.y + 25}, (Vector2){0, 0}, 0, 101, 1, YELLOW);
     DrawTextPro(in->font[0], "TOWER DEFENSE", (Vector2){MainRec.x + 100, MainRec.y + 25}, (Vector2){1, 0}, 0, 100, 1, RED);
-    Rectangle LeaveRec = {515, 905, 200, 50};
-    if (CheckCollisionPointRec(in->mousePoint, LeaveRec))
+    Rectangle ButtonsRec[3];
+    for (int i = 0; i < 3; i++)
     {
-        DrawRectanglePro(LeaveRec, (Vector2){0, 0}, 0, CLITERAL(Color){200, 200, 200, 150});
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
-            in->btnState[0] = true;
+        ButtonsRec[i] = {(MainRec.x + MainRec.width) / 2, 250 + 250 * (float)i, 500, 200};
+        in->btnState[i] = false;
+    }
+    for (int i = 0; i < 3; i++)
+    {
+        if (CheckCollisionPointRec(in->mousePoint, ButtonsRec[i]))
+        {
+            DrawRectanglePro(ButtonsRec[i], (Vector2){0, 0}, 0, CLITERAL(Color){200, 200, 200, 150});
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+                in->btnState[i] = true;
+            else
+                in->btnState[i] = false;
+        }
         else
-            in->btnState[0] = false;
+            DrawRectanglePro(ButtonsRec[i], (Vector2){0, 0}, 0, CLITERAL(Color){146, 45, 38, 150});
+    }
+
+    DrawTextPro(in->font[0], "CREATE", (Vector2){ButtonsRec[0].x + 130, ButtonsRec[0].y + 25}, (Vector2){25, 0}, 0, 100, 1, BLACK);
+    DrawTextPro(in->font[0], "LEAVE", (Vector2){ButtonsRec[2].x + 130, ButtonsRec[2].y + 25}, (Vector2){0, 0}, 0, 100, 1, BLACK);
+}
+
+void renderCreate(GameDatas *in)
+{
+    generateMap(in);
+    Rectangle ButtonRec = {1850, 50, 80, 50}, TilesRec = {1750, 100, 280, 200};
+    if (CheckCollisionPointRec(in->mousePoint, ButtonRec))
+    {
+        DrawRectanglePro(ButtonRec, Vector2{0, 0}, 0, CLITERAL(Color){200, 200, 200, 150});
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+            in->btnState[9] = !in->btnState[9];
     }
     else
-        DrawRectanglePro(LeaveRec, (Vector2){0, 0}, 0, CLITERAL(Color){146, 45, 38, 150});
-    DrawTextPro(in->font[0], "LEAVE", (Vector2){LeaveRec.x + 22, LeaveRec.y + 2}, (Vector2){0, 0}, 0, 50, 1, BLACK);
+        DrawRectanglePro(ButtonRec, Vector2{0, 0}, 0, CLITERAL(Color){146, 45, 38, 150});
+    if (in->btnState[9])
+    {
+        DrawRectanglePro(TilesRec, Vector2{0, 0}, 0, CLITERAL(Color){17, 85, 136, 150});
+        for (int i = 1; i < 3; i++)
+        {
+            DrawTexture(in->texture[i], in->tilesRec[i].x, in->tilesRec[i].y, WHITE);
+            if (CheckCollisionPointRec(in->mousePoint, in->tilesRec[i]))
+            {
+                DrawRectangleLinesEx(in->tilesRec[i], 1, RED);
+                if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+                    in->overlayId = i;
+            }
+            if (in->overlayId == i)
+            {
+                DrawRectangleLinesEx(in->tilesRec[i], 1, RED);
+                DrawTexture(in->texture[i], in->mousePoint.x + 10, in->mousePoint.y + 10, WHITE);
+                DrawRectangleLines(in->mousePoint.x + 10, in->mousePoint.y + 10, 64, 64, RED);
+                if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+                {
+                    int tmpx = (int)((in->mousePoint.x - 32) / 64 + 0.5) * 64;
+                    int tmpy = (int)((in->mousePoint.y - 32) / 64 + 0.5) * 64;
+                    int tx = (tmpx / 64);
+                    int ty = (tmpy / 64);
+                    if (i == 2 && (tmpx < 1920 && tmpx >= 0) && (tmpy < 1080 && tmpy >= 0))
+                    {
+                        in->maps[in->mapId][ty][tx] = '=';
+                    }
+                    else
+                        in->maps[in->mapId][ty][tx] = 'd';
+                }
+            }
+        }
+    }
+    for (int z = 0; z < 17; z++)
+    {
+        for (int w = 0; w < 31; w++)
+        {
+            bool east = false, west = false, south = false, north = false;
+            if (in->maps[in->mapId][z][w] != 'd')
+            {
+                if ((z != 16) && in->maps[in->mapId][z + 1][w] != 'd')
+                {
+                    south = true;
+                }
+                if ((z != 0) && in->maps[in->mapId][z - 1][w] != 'd')
+                {
+                    north = true;
+                }
+                if ((w != 31) && in->maps[in->mapId][z][w + 1] != 'd')
+                {
+                    east = true;
+                }
+                if (w == 29)
+                {
+                    east = true;
+                }
+                if ((w != 0) && in->maps[in->mapId][z][w - 1] != 'd')
+                {
+                    west = true;
+                }
+            }
+            if (east && south && north && west)
+            {
+                in->maps[in->mapId][z][w] = '+';
+            }
+            else if (west && south && east)
+            {
+                in->maps[in->mapId][z][w] = 'v';
+            }
+            else if (west && north && east)
+            {
+                in->maps[in->mapId][z][w] = '^';
+            }
+            else if (west && south && north)
+            {
+                in->maps[in->mapId][z][w] = '<';
+            }
+            else if (east && south && north)
+            {
+                in->maps[in->mapId][z][w] = '>';
+            }
+            else if (east && north)
+            {
+                in->maps[in->mapId][z][w] = '[';
+            }
+            else if (east && south)
+            {
+                in->maps[in->mapId][z][w] = '{';
+            }
+            else if (west && north)
+            {
+                in->maps[in->mapId][z][w] = ']';
+            }
+            else if (west && south)
+            {
+                in->maps[in->mapId][z][w] = '}';
+            }
+            else if (north || south || (north && south))
+            {
+                in->maps[in->mapId][z][w] = '|';
+            }
+            else if ((east) || (west) || (west && east))
+            {
+                in->maps[in->mapId][z][w] = '=';
+            }
+        }
+    }
+    Rectangle SaveRec = {1750, 1010, 300, 100};
+    if (CheckCollisionPointRec(in->mousePoint, SaveRec))
+    {
+        DrawRectanglePro(SaveRec, Vector2{0, 0}, 0, CLITERAL(Color){200, 200, 200, 150});
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        {
+            in->btnState[7] = true;
+            std::ofstream file("src/map.txt");
+            file.write((char *)in->maps, sizeof(in->maps));
+            file.close();
+        }
+    }
+    else
+        DrawRectanglePro(SaveRec, Vector2{0, 0}, 0, CLITERAL(Color){146, 45, 38, 150});
+    DrawRectangleLinesEx(SaveRec, 1, RED);
+    DrawText("SAVE", 1765, 1020, 50, BLACK);
 }
 
 void renderGame(GameDatas *in)
@@ -124,7 +270,7 @@ void renderGame(GameDatas *in)
                     in->overlayId = -1;
                     int tmpx = (int)(in->towerRec[i].x / 64 + 0.5) * 64;
                     int tmpy = (int)(in->towerRec[i].y / 64 + 0.5) * 64;
-                    if (map1[tmpy / 64][tmpx / 64] == 'd' && in->drag[i] == false && in->isTower[tmpy / 64][tmpx / 64] == 0) //If grass
+                    if (in->maps[in->mapId][tmpy / 64][tmpx / 64] == 'd' && in->drag[i] == false && in->isTower[tmpy / 64][tmpx / 64] == 0) //If grass
                     {
                         if ((in->towerRec[i].x < 1680 || in->towerRec[i].x > 1920) || (in->towerRec[i].y < 30 || in->towerRec[i].y > 300))
                         {
@@ -254,7 +400,7 @@ void renderTower(GameDatas *in)
                     color[1] = CLITERAL(Color){150, 0, 0, 100};
                 DrawRectangleRec(upgradeRec, color[1]);
                 //Key for Upgrade
-                if ((IsKeyDown(KEY_U) || (CheckCollisionPointRec(in->mousePoint, upgradeRec) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))&& (tmp.type == ELITE ? in->player.coins > 700 : in->player.coins > 450))
+                if ((IsKeyDown(KEY_U) || (CheckCollisionPointRec(in->mousePoint, upgradeRec) && IsMouseButtonDown(MOUSE_BUTTON_LEFT))) && (tmp.type == ELITE ? in->player.coins > 700 : in->player.coins > 450))
                 {
                     tmp = upgradeTower(in, tmp);
                 }
@@ -320,8 +466,8 @@ void renderTower(GameDatas *in)
             height = (tmp.type == BASIC || tmp.type == ADVANCED) ? 80 : 64;
             textureID = 111;
         }
-        DrawTexturePro(in->texture[100], Rectangle{0, 0, 64, 64}, Rectangle{tmp.pos.x - 32, tmp.pos.y - 32, 64, 64}, Vector2{0, 0}, 0, color[0]); //Tower Base
-        DrawTexturePro(in->texture[textureID + tmp.type], Rectangle{0, 0, 64, height}, Rectangle{tmp.pos.x, tmp.pos.y, 64, height}, Vector2{32, height == 80 ? 49.0f : 32.0f}, tmp.rot, color[0]);//Tower Up
+        DrawTexturePro(in->texture[100], Rectangle{0, 0, 64, 64}, Rectangle{tmp.pos.x - 32, tmp.pos.y - 32, 64, 64}, Vector2{0, 0}, 0, color[0]);                                                  //Tower Base
+        DrawTexturePro(in->texture[textureID + tmp.type], Rectangle{0, 0, 64, height}, Rectangle{tmp.pos.x, tmp.pos.y, 64, height}, Vector2{32, height == 80 ? 49.0f : 32.0f}, tmp.rot, color[0]); //Tower Up
         in->player.tower[i] = tmp;
     }
 }

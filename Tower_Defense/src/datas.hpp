@@ -11,6 +11,7 @@ typedef enum renderType : int
     MAIN,
     GAME,
     SETTINGS,
+    CREATE
 } renderType;
 
 enum TowerType : int
@@ -85,6 +86,7 @@ struct Enemy
     int MaxCoinsToDeliver;
     bool alive;
     bool dead;
+    int sens;
     int spawnCooldoown;
 };
 
@@ -113,8 +115,11 @@ struct GameDatas
     renderType type;
     Vector2 mousePoint;
     Rectangle towerRec[10];
+    Rectangle tilesRec[10];
     Particle particle[1000];
+    char maps[2][17][31];
     int delaySpawn;
+    int mapId;
     int overlayId;
     bool btnState[10];
     bool inGame;

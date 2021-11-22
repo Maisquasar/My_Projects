@@ -15,6 +15,9 @@ void TexturesLoad(GameDatas* in)
     in->texture[7] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/kenney_topdowntanksredux/PNG/Default size/tileGrass_roadCornerLL.png");
     in->texture[8] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/kenney_topdowntanksredux/PNG/Default size/tileGrass_roadSplitE.png");
     in->texture[9] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/kenney_topdowntanksredux/PNG/Default size/tileGrass_roadSplitW.png");
+    in->texture[10] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/kenney_topdowntanksredux/PNG/Default size/tileGrass_roadSplitS.png");
+    in->texture[11] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/kenney_topdowntanksredux/PNG/Default size/tileGrass_roadSplitN.png");
+    in->texture[12] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_Projects/Tower_Defense/assets/kenney_topdowntanksredux/PNG/Default size/tileGrass_roadCrossing.png");
 
     //Enemies(50 - 99)
     in->texture[50] = LoadTexture("/home/ISART/r.bourgogne/Documents/My_projects/Tower Defense/assets/kenney_topdowntanksredux/PNG/Default size/tank_blue.png"); //Slow

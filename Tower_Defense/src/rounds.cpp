@@ -39,12 +39,16 @@ void createEnemies(GameDatas *in, int Number, EnemyType type)
     Number++;
     for (int i = in->enemiesCount; i < in->enemiesCount + Number; i++)
     {
-        in->enemy[i].pos = Vector2{5, 609};
+        for (int y = 0; y < 17; y++)
+        {
+            if (in->maps[in->mapId][y][0] == '=')
+                in->enemy[i].pos.y = (y * 64) + 32;
+        }
         in->enemy[i].alive = false;
         in->enemy[i].dead = false;
         in->enemy[i].type = type;
-        in->enemy[i].rot = 90;
-        in->enemy[i].dir = 0;
+        in->enemy[i].rot = 270;
+        in->enemy[i].dir = 270;
         in->enemy[i].tmpdir = 0;
         in->enemy[i].spawnCooldoown = in->delaySpawn;
         in->delaySpawn += 10;

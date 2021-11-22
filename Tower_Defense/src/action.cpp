@@ -21,104 +21,249 @@ void initPlayer(GameDatas *in)
 void handleEnemies(GameDatas *in)
 {
     int NumberOfEnemies = in->enemiesCount;
+    int x = in->mapId;
     for (int i = 0; i < in->enemiesCount; i++)
     {
-        if (in->enemy[i].alive && !in->btnState[10] && !in->enemy[i].dead)
-        {
+        Enemy temp = in->enemy[i];
+        // bool east = false, west = false, north = false, south = false;
+        temp.pos = VtoV2(add(V2toV(temp.pos), mul(createWith(cosf(toRadians(temp.rot + 90)), sinf(toRadians(temp.rot + 90))), temp.speed)));
+        if (temp.alive && !in->btnState[10] && !temp.dead)
+        { /* 
+            if (((int)temp.pos.x / 64) + 1 < 31 && in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64) + 1] != 'd')
+                east = true;
+            if (((int)temp.pos.x / 64) - 1 > 0 && in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64) - 1] != 'd')
+                west = true;
+            if (((int)temp.pos.y / 64) + 1 < 17 && in->maps[x][((int)temp.pos.y / 64) + 1][((int)temp.pos.x / 64) + 1] != 'd')
+                south = true;
+            if (((int)temp.pos.y / 64) - 1 > 0 && in->maps[x][((int)temp.pos.y / 64) - 1][((int)temp.pos.x / 64) - 1] != 'd')
+                north = true;
+            if (north && )
+                return;
+ */
 
-            if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '=')
+            if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '=')
             {
-                in->enemy[i].tmpdir = 0;//NORTH
-                in->enemy[i].rot = -90;//EAST
-                in->enemy[i].pos.x += in->enemy[i].speed;
-            }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == ']')
-            {
-                in->enemy[i].rot = 180;//SOUTH
-                in->enemy[i].pos.x += in->enemy[i].speed;
-                in->enemy[i].pos.y -= in->enemy[i].speed;
-            }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '[')
-            {
-                in->enemy[i].rot = -90;//EAST
-                in->enemy[i].pos.y += in->enemy[i].speed;
-                in->enemy[i].pos.x += in->enemy[i].speed;
-            }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '|')
-            {
-                in->enemy[i].tmpdir = 180;//SOUTH
-                if (in->enemy[i].rot == 0)//NORTH
-                    in->enemy[i].pos.y += in->enemy[i].speed;
-                else//SOUTH
-                    in->enemy[i].pos.y -= in->enemy[i].speed;
-            }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '{')
-            {
-                in->enemy[i].rot = -90;//EAST
-                in->enemy[i].pos.x += in->enemy[i].speed;
-                in->enemy[i].pos.y -= in->enemy[i].speed;
-            }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '}')
-            {
-                in->enemy[i].rot = 0;//NORTH
-                in->enemy[i].pos.x += in->enemy[i].speed;
-                in->enemy[i].pos.y += in->enemy[i].speed;
-            }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '>')
-            {
-                if (in->enemy[i].tmpdir == 180)//SOUTH
-                    in->enemy[i].tmpdir = GetRandomValue(1, 2);
-                if (in->enemy[i].tmpdir == 1)
+                temp.tmpdir = 0;
+                if (temp.dir == 90)
                 {
-                    in->enemy[i].rot = -90;//EAST
-                    in->enemy[i].pos.x += in->enemy[i].speed;
-                    in->enemy[i].pos.y += in->enemy[i].speed;
+                    temp.dir = 90;
+                    temp.rot = temp.dir;
+                    temp.pos.x -= temp.speed;
                 }
-                else
+                else if (temp.dir == 270)
                 {
-                    if (in->enemy[i].rot == 0)//NORTH
-                        in->enemy[i].pos.y += in->enemy[i].speed;
-                    else//SOUTH
-                        in->enemy[i].pos.y -= in->enemy[i].speed;
+                    temp.dir = 270;
+                    temp.rot = temp.dir;
+                    temp.pos.x += temp.speed;
                 }
             }
-            else if (map1[((int)in->enemy[i].pos.y / 64)][((int)in->enemy[i].pos.x / 64)] == '<')
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == ']') //left up
             {
-                if (in->enemy[i].tmpdir == 0)//NORTH
-                    in->enemy[i].tmpdir = GetRandomValue(1, 2);
-                if (in->enemy[i].rot == -90 || in->enemy[i].rot == 360 + 180)//EAST || NORTH
+                if (temp.dir == 0 || temp.dir == 90) //up
                 {
-                    in->enemy[i].rot = 360+180;
-                    in->enemy[i].pos.x += in->enemy[i].speed;
-                    in->enemy[i].pos.y -= in->enemy[i].speed;
+                    temp.dir = 90;
+                    temp.rot = temp.dir;
+                    temp.pos.x -= temp.speed;
+                    temp.pos.y += temp.speed;
                 }
-                if (in->enemy[i].rot == 180)//SOUTH
+                else if (temp.dir == 270 || temp.dir == 180) //left
                 {
-                    in->enemy[i].pos.y -= in->enemy[i].speed;
+                    temp.dir = 180;
+                    temp.rot = temp.dir;
+                    temp.pos.x += temp.speed;
+                    temp.pos.y -= temp.speed;
                 }
             }
-            else
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '[') //right up
             {
-                // int *tmp;
-                // int test = *tmp;
+                if (temp.dir == 0 || temp.dir == 270) //up
+                {
+                    temp.dir = 270;
+                    temp.tmpdir = 270;
+                    temp.rot = temp.dir;
+                    temp.pos.x += temp.speed;
+                    temp.pos.y += temp.speed;
+                }
+                else if (temp.dir == 90 || temp.dir == 0) //right
+                {
+                    temp.dir = 0;
+                    temp.rot = temp.dir;
+                    temp.pos.x -= temp.speed;
+                    temp.pos.y -= temp.speed;
+                }
             }
-            if (in->enemy[i].life == 0)
-                in->enemy[i].alive = false;
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '|')
+            {
+                temp.tmpdir = 0;
+                if (temp.dir == 0) //down
+                {
+                    temp.dir = 0;
+                    temp.rot = temp.dir;
+                    temp.pos.y += temp.speed;
+                }
+                else if (temp.dir == 180) //up
+                {
+                    temp.dir = 180;
+                    temp.rot = temp.dir;
+                    temp.pos.y -= temp.speed;
+                }
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '}') //Down left
+            {
+                if (temp.dir == 180 || temp.dir == 90) //Down
+                {
+                    temp.dir = 90;
+                    temp.rot = temp.dir;
+                    temp.pos.x -= temp.speed;
+                    temp.pos.y -= temp.speed;
+                }
+                else if (temp.dir == 270 || temp.dir == 0) //left
+                {
+                    temp.dir = 0;
+                    temp.rot = temp.dir;
+                    temp.pos.x += temp.speed;
+                    temp.pos.y += temp.speed;
+                }
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '{') //Down right
+            {
+                if (temp.dir == 180 || temp.tmpdir == 270) //Down
+                {
+                    temp.dir = 270;
+                    temp.tmpdir = 270;
+                    temp.rot = temp.dir;
+                    temp.pos.x += temp.speed;
+                    temp.pos.y -= temp.speed;
+                }
+                else if (temp.dir == 90 || temp.dir == 0) //Right
+                {
+                    temp.dir = 0;
+                    temp.rot = temp.dir;
+                    temp.pos.x -= temp.speed;
+                    temp.pos.y += temp.speed;
+                }
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '>') //UP DOWN RIGHT
+            {
+                if (temp.rot == 90 || temp.tmpdir != 0)
+                {
+                    if (temp.tmpdir == 0)
+                        temp.tmpdir = GetRandomValue(1, 2);
+                    if (temp.tmpdir == 1)
+                    {
+                        temp.dir = 0;
+                        temp.rot = 0;
+                        temp.pos.x -= temp.speed;
+                        temp.pos.y += temp.speed;
+                    }
+                    else
+                    {
+                        temp.dir = 180;
+                        temp.rot = 180;
+                        temp.pos.x -= temp.speed;
+                        temp.pos.y -= temp.speed;
+                    }
+                }
+                else if (temp.rot == 0)
+                    temp.pos.y += temp.speed;
+                else if (temp.rot == 180)
+                    temp.pos.y -= temp.speed;
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '<')
+            {
+                if (temp.rot == 270 || temp.tmpdir != 0)
+                {
+                    if (temp.tmpdir == 0)
+                        temp.tmpdir = GetRandomValue(1, 2);
+                    if (temp.tmpdir == 1)
+                    {
+                        temp.dir = 180;
+                        temp.rot = 180;
+                        temp.pos.x += temp.speed;
+                        temp.pos.y -= temp.speed;
+                    }
+                    else
+                    {
+                        temp.dir = 0;
+                        temp.rot = 0;
+                        temp.pos.x += temp.speed;
+                        temp.pos.y += temp.speed;
+                    }
+                }
+                else if (temp.rot == 0)
+                    temp.pos.y += temp.speed;
+                else if (temp.rot == 180)
+                    temp.pos.y -= temp.speed;
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '^')
+            {
+                if (temp.rot == 0 || temp.tmpdir != 0)
+                {
+                    if (temp.tmpdir == 0)
+                        temp.tmpdir = GetRandomValue(1, 2);
+                    if (temp.tmpdir == 1)
+                    {
+                        temp.dir = 270;
+                        temp.rot = 270;
+                        temp.pos.x += temp.speed;
+                        temp.pos.y += temp.speed;
+                    }
+                    else
+                    {
+                        temp.dir = 90;
+                        temp.rot = 90;
+                        temp.pos.x -= temp.speed;
+                        temp.pos.y += temp.speed;
+                    }
+                }
+                else if (temp.dir == 270)
+                {
+                    temp.pos.x += temp.speed;
+                }
+                else if (temp.rot == 90)
+                    temp.pos.x -= temp.speed;
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '+')
+            {
+                if (temp.rot == 270)
+                {
+                    temp.pos.x += temp.speed;
+                }
+                if (temp.rot == 90)
+                {
+                    temp.pos.x -= temp.speed;
+                }
+                if (temp.rot == 0)
+                {
+                    temp.pos.y -= temp.speed;
+                }
+                if (temp.rot == 180)
+                {
+                    temp.pos.y += temp.speed;
+                }
+            }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == 'd')
+            {
+                temp.rot += 90;
+            }
+            if (temp.life == 0)
+                temp.alive = false;
         }
         else
         {
-            in->enemy[i].spawnCooldoown -= 1;
-            if (in->enemy[i].spawnCooldoown == 0)
-                in->enemy[i].alive = true;
+            temp.spawnCooldoown -= 1;
+            if (temp.spawnCooldoown == 0)
+                temp.alive = true;
         }
-        if (in->enemy[i].life <= 0 && in->enemy[i].dead == false)
+        if (temp.life <= 0 && temp.dead == false)
         {
-            in->player.coins += in->enemy[i].coinsToDeliver;
-            in->enemy[i].alive = false;
-            in->enemy[i].dead = true;
+            in->player.coins += temp.coinsToDeliver;
+            temp.alive = false;
+            temp.dead = true;
         }
-        if (!in->enemy[i].alive && in->enemy[i].spawnCooldoown <= 0)
+        if (!temp.alive && temp.spawnCooldoown <= 0)
             NumberOfEnemies -= 1;
+        in->enemy[i] = temp;
     }
     if (NumberOfEnemies <= 0)
     {
