@@ -7,7 +7,7 @@ void initPlayer(GameDatas *in)
     in->towerRec[1] = {1810, 220, 64, 64};
     for (int i = 0; i < 2; i++)
         in->drag[i] = false;
-    in->player.coins = 200;
+    in->player.coins = 20000;
     in->rounds = 1;
 }
 
@@ -26,7 +26,7 @@ void handleEnemies(GameDatas *in)
     {
         Enemy temp = in->enemy[i];
         // bool east = false, west = false, north = false, south = false;
-        temp.pos = VtoV2(add(V2toV(temp.pos), mul(createWith(cosf(toRadians(temp.rot + 90)), sinf(toRadians(temp.rot + 90))), temp.speed)));
+        // temp.pos = VtoV2(add(V2toV(temp.pos), mul(createWith(cosf(toRadians(temp.rot + 90)), sinf(toRadians(temp.rot + 90))), temp.speed)));
         if (temp.alive && !in->btnState[10] && !temp.dead)
         { /* 
             if (((int)temp.pos.x / 64) + 1 < 31 && in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64) + 1] != 'd')
@@ -223,6 +223,34 @@ void handleEnemies(GameDatas *in)
                 else if (temp.rot == 90)
                     temp.pos.x -= temp.speed;
             }
+            else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == 'v')
+            {
+                if (temp.rot == 180 || temp.tmpdir != 0)
+                {
+                    if (temp.tmpdir == 0)
+                        temp.tmpdir = GetRandomValue(1, 2);
+                    if (temp.tmpdir == 1)
+                    {
+                        temp.dir = 270;
+                        temp.rot = 270;
+                        temp.pos.x += temp.speed;
+                        temp.pos.y -= temp.speed;
+                    }
+                    else
+                    {
+                        temp.dir = 90;
+                        temp.rot = 90;
+                        temp.pos.x -= temp.speed;
+                        temp.pos.y -= temp.speed;
+                    }
+                }
+                else if (temp.dir == 270)
+                {
+                    temp.pos.x += temp.speed;
+                }
+                else if (temp.rot == 90)
+                    temp.pos.x -= temp.speed;
+            }
             else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == '+')
             {
                 if (temp.rot == 270)
@@ -235,11 +263,11 @@ void handleEnemies(GameDatas *in)
                 }
                 if (temp.rot == 0)
                 {
-                    temp.pos.y -= temp.speed;
+                    temp.pos.y += temp.speed;
                 }
                 if (temp.rot == 180)
                 {
-                    temp.pos.y += temp.speed;
+                    temp.pos.y -= temp.speed;
                 }
             }
             else if (in->maps[x][((int)temp.pos.y / 64)][((int)temp.pos.x / 64)] == 'd')
@@ -263,6 +291,12 @@ void handleEnemies(GameDatas *in)
         }
         if (!temp.alive && temp.spawnCooldoown <= 0)
             NumberOfEnemies -= 1;
+        if (temp.pos.x <= 0)
+        {
+            temp.dir = 270;
+            temp.rot = 270;
+            temp.pos.x += temp.speed;
+        }
         in->enemy[i] = temp;
     }
     if (NumberOfEnemies <= 0)
@@ -481,5 +515,6 @@ void initTower(GameDatas *in)
     for (int i = 0; i < 1000; i++)
     {
         in->player.tower[i].pos = {0, 0};
+        in->player.tower[i].radius = 0;
     }
 }
